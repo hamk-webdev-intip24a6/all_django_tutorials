@@ -4,43 +4,187 @@
         <meta charset="UTF-8">
         <title>Images</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
-        </script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js">
-        </script>
+        <style>
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+            :root {
+                --bg: #ffffff;
+                --text: #1a1a1a;
+                --link: #0a5ec2;
+                --link-hover: #073f87;
+                --card-bg: #f5f5f5;
+                --card-border: #ddd;
+                --btn-bg: #e0e0e0;
+                --btn-text: #1a1a1a;
+                --page-active-bg: #0a5ec2;
+                --page-active-text: #ffffff;
+            }
+
+            [data-theme="dark"] {
+                --bg: #121212;
+                --text: #e0e0e0;
+                --link: #6db3f2;
+                --link-hover: #a8d4ff;
+                --card-bg: #1e1e1e;
+                --card-border: #333;
+                --btn-bg: #333;
+                --btn-text: #e0e0e0;
+                --page-active-bg: #6db3f2;
+                --page-active-text: #121212;
+            }
+
+            body {
+                font-family: system-ui, -apple-system, sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                line-height: 1.6;
+                padding: 1rem;
+                max-width: 1200px;
+                margin: 0 auto;
+                transition: background 0.2s, color 0.2s;
+            }
+
+            a { color: var(--link); text-decoration: underline; }
+            a:hover, a:focus { color: var(--link-hover); }
+
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            h1 { font-size: 1.8rem; }
+
+            #theme-toggle {
+                background: var(--btn-bg);
+                color: var(--btn-text);
+                border: 2px solid var(--card-border);
+                padding: 0.4rem 0.8rem;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 0.9rem;
+                line-height: 1;
+            }
+            #theme-toggle:hover, #theme-toggle:focus {
+                outline: 2px solid var(--link);
+                outline-offset: 2px;
+            }
+
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+            }
+            @media (max-width: 900px) {
+                .grid { grid-template-columns: repeat(2, 1fr); }
+            }
+            @media (max-width: 500px) {
+                .grid { grid-template-columns: 1fr; }
+            }
+
+            .card {
+                background: var(--card-bg);
+                border: 1px solid var(--card-border);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            .card img {
+                width: 100%;
+                height: auto;
+                display: block;
+            }
+            .card p {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.95rem;
+            }
+
+            .pagination {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 0.3rem;
+                list-style: none;
+                margin-top: 1.5rem;
+            }
+            .pagination a {
+                display: inline-block;
+                padding: 0.4rem 0.75rem;
+                border: 1px solid var(--card-border);
+                border-radius: 4px;
+                text-decoration: none;
+                color: var(--link);
+            }
+            .pagination a:hover, .pagination a:focus {
+                background: var(--card-border);
+            }
+            .pagination .active a {
+                background: var(--page-active-bg);
+                color: var(--page-active-text);
+                border-color: var(--page-active-bg);
+            }
+        </style>
     </head>
     <body>
-        <div class="col-md-12">
-            <h1>Gallery</h1>
-            <p><a href="{% url 'gallery:image_upload' %}">Upload more images</a></p>
+        <header>
+            <div>
+                <h1>Gallery</h1>
+                <p><a href="{% url 'gallery:image_upload' %}">Upload more images</a></p>
+            </div>
+            <button id="theme-toggle" type="button" aria-label="Toggle dark mode">🌙 Dark</button>
+        </header>
+
+        <div class="grid">
+            {% for post in posts %}
+            <div class="card">
+                <img src="{{ post.image.url }}" alt="{{ post.description }}">
+                <p>{{ post.description }}</p>
+            </div>
+            {% endfor %}
         </div>
-        {% for post in posts %}
-        <div class="col-md-4">
-            <p>{{ post.description }}</p>
-            <img src="{{ post.image.url }}" class="img-responsive" style="width: 100%; float: left; margin-right: 10px;" />
-        </div>
-        {% endfor %}
 
         {% if is_paginated %}
-        <div class="col-md-12">
-            <nav>
-                <ul class="pagination">
-                    {% if page_obj.has_previous %}
-                    <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
-                    {% endif %}
-                    {% for num in paginator.page_range %}
-                    <li {% if page_obj.number == num %}class="active"{% endif %}>
-                        <a href="?page={{ num }}">{{ num }}</a>
-                    </li>
-                    {% endfor %}
-                    {% if page_obj.has_next %}
-                    <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+                {% for num in paginator.page_range %}
+                <li {% if page_obj.number == num %}class="active"{% endif %}>
+                    <a href="?page={{ num }}" {% if page_obj.number == num %}aria-current="page"{% endif %}>{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
         {% endif %}
 
+        <script>
+            (function() {
+                var toggle = document.getElementById('theme-toggle');
+                var html = document.documentElement;
+                var stored = localStorage.getItem('theme');
+                if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    html.setAttribute('data-theme', 'dark');
+                    toggle.textContent = '☀️ Light';
+                }
+                toggle.addEventListener('click', function() {
+                    var isDark = html.getAttribute('data-theme') === 'dark';
+                    if (isDark) {
+                        html.removeAttribute('data-theme');
+                        localStorage.setItem('theme', 'light');
+                        toggle.textContent = '🌙 Dark';
+                    } else {
+                        html.setAttribute('data-theme', 'dark');
+                        localStorage.setItem('theme', 'dark');
+                        toggle.textContent = '☀️ Light';
+                    }
+                });
+            })();
+        </script>
     </body>
 </html>
