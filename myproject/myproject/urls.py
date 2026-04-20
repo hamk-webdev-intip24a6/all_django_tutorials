@@ -31,7 +31,8 @@ urlpatterns = [
     path('hello/', include('hello.urls')),
     path('dictionary/', include('dictionary.urls')),
     path('guestbook/', include('guestbook.urls')),
-    path('gallery/', include('gallery.urls')),        
+    path('gallery/', include('gallery.urls')),
+    path('feedback/', include('feedback.urls')),        
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
